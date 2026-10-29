@@ -1,56 +1,79 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Team I: PR Summarizer Bot</title>
-<style>
-  body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;margin:0;padding:2rem;max-width:860px;margin-inline:auto}
-  h1{margin:0 0 .25rem} p.tag{color:#94a3b8;margin-top:0}
-  .card{background:#1e293b;border-radius:10px;padding:1rem;margin:1rem 0}
-  button{background:#38bdf8;border:0;border-radius:6px;padding:.4rem .8rem;cursor:pointer;font-weight:600}
-  code{background:#0f172a;padding:2px 6px;border-radius:4px}
-  textarea,pre{width:100%;box-sizing:border-box;background:#0f172a;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:.5rem}
-  pre{white-space:pre-wrap;min-height:3rem}
-  .row{display:flex;gap:.5rem;align-items:center;margin:.4rem 0;flex-wrap:wrap}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PR Summarizer Bot</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<h1>Team I: PR Summarizer Bot</h1>
-<p class="tag">GitHub webhook that summarises pull requests</p>
+  <header class="app-header">
+    <div>
+      <h1>PR Summarizer Bot</h1>
+      <p class="subtitle">AI-powered Pull Request summaries and risk analysis</p>
+    </div>
+    <div class="header-actions">
+      <span id="backend-status" class="badge badge-unknown" role="status" aria-live="polite">Checking backend…</span>
+      <button id="refresh-btn" type="button">Refresh</button>
+    </div>
+  </header>
 
-<div class="card">
-  <b>Starter API tester.</b> Replace this page with your real UI.
-  <div class="row"><button onclick="call('GET','/health')">GET /health</button></div>
-  <div id="eps"></div>
-  <label>JSON body (for POST/PATCH)</label>
-  <textarea id="body" rows="4">{}</textarea>
-  <label>Response</label>
-  <pre id="out">...</pre>
-</div>
+  <main>
+    <section aria-labelledby="stats-heading">
+      <h2 id="stats-heading" class="visually-hidden">Summary statistics</h2>
+      <div class="stats">
+        <div class="stat"><span class="stat-label">Total analyzed PRs</span><span class="stat-value" id="stat-total">–</span></div>
+        <div class="stat stat-low"><span class="stat-label">Low risk</span><span class="stat-value" id="stat-low">–</span></div>
+        <div class="stat stat-medium"><span class="stat-label">Medium risk</span><span class="stat-value" id="stat-medium">–</span></div>
+        <div class="stat stat-high"><span class="stat-label">High risk</span><span class="stat-value" id="stat-high">–</span></div>
+      </div>
+      <p class="stat-extra" id="stat-extra"></p>
+    </section>
 
-<div class="card"><!-- TODO: build your frontend here --></div>
+    <section aria-labelledby="list-heading">
+      <div class="list-header">
+        <h2 id="list-heading">Pull requests</h2>
+        <div class="filters">
+          <label for="filter-risk">Risk
+            <select id="filter-risk">
+              <option value="">All</option>
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+            </select>
+          </label>
+          <label for="filter-status">Status
+            <select id="filter-status">
+              <option value="">All</option>
+              <option value="success">Analyzed</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="failed">Failed</option>
+              <option value="skipped">Skipped</option>
+            </select>
+          </label>
+        </div>
+      </div>
 
-<script>
-const ENDPOINTS = [{"m": "POST", "p": "/webhook/github", "d": "GitHub webhook receiver"}, {"m": "GET", "p": "/api/summaries", "d": "List generated summaries"}];
-const eps = document.getElementById("eps");
-ENDPOINTS.forEach(e => {
-  const row = document.createElement("div"); row.className = "row";
-  const b = document.createElement("button"); b.textContent = e.m + " " + e.p;
-  b.onclick = () => call(e.m, e.p);
-  row.append(b, Object.assign(document.createElement("span"), {textContent: e.d}));
-  eps.append(row);
-});
-async function call(method, path) {
-  const url = path.replace(/:\w+/g, "1");
-  const opts = {method, headers: {"Content-Type": "application/json"}};
-  if (method !== "GET") opts.body = document.getElementById("body").value;
-  try {
-    const r = await fetch(url, opts);
-    const txt = await r.text();
-    document.getElementById("out").textContent = r.status + "\n" + txt;
-  } catch (err) { document.getElementById("out").textContent = String(err); }
-}
-</script>
+      <div id="message" class="message" role="status" aria-live="polite" hidden></div>
+      <div id="list" class="list"></div>
+
+      <nav class="pager" aria-label="Pagination">
+        <button id="prev-btn" type="button" disabled>Previous</button>
+        <span id="page-info"></span>
+        <button id="next-btn" type="button" disabled>Next</button>
+      </nav>
+    </section>
+  </main>
+
+  <dialog id="detail-dialog" aria-labelledby="detail-title">
+    <div class="dialog-head">
+      <h2 id="detail-title">Details</h2>
+      <button id="detail-close" type="button" aria-label="Close details">Close</button>
+    </div>
+    <div id="detail-body"></div>
+  </dialog>
+
+  <script src="/script.js"></script>
 </body>
 </html>

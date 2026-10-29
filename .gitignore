@@ -1,5 +1,22 @@
+# Secrets
 .env
-__pycache__/
-node_modules/
-*.pyc
+.env.*
+!.env.example
+
+# Python
 .venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node leftovers from the starter
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/

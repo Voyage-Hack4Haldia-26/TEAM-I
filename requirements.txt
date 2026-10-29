@@ -1,5 +1,6 @@
-flask
-flask-cors
-gunicorn
-python-dotenv
-requests
+Flask>=3.0,<4
+gunicorn>=22.0
+requests>=2.32,<3
+python-dotenv>=1.0
+psycopg[binary]>=3.2,<4
+google-genai>=1.0

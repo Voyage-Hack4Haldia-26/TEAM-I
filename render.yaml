@@ -1,0 +1,23 @@
+# Optional Render Blueprint. You can also create the service by hand (see README).
+services:
+  - type: web
+    name: pr-summarizer-bot
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # ONE worker + threads: webhook jobs run in this process's thread pool.
+    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 120 --bind 0.0.0.0:$PORT
+    healthCheckPath: /health
+    envVars:
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        sync: false
+      - key: SUPABASE_DB_URL
+        sync: false
+      - key: ENABLE_PR_COMMENTS
+        value: "false"
